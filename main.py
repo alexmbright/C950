@@ -1,2 +1,3 @@
-from hashmap import HashMap
+import package
 
+package.scan_packages()

@@ -2,6 +2,7 @@ class HashMap:
 
     def __init__(self):
         self.map = [None] * 71
+        self.length = 0
 
     def _hash(self, key):
         index_hash = 0
@@ -21,6 +22,7 @@ class HashMap:
                 pair[1] = value
                 return True
         self.map[index_hash].append(key_val)
+        self.length += 1
         return True
 
     def get(self, key):
@@ -40,12 +42,17 @@ class HashMap:
                 del self.map[index_hash][i]
                 if not self.map[index_hash]:
                     self.map[index_hash] = None
+                self.length -= 1
                 return True
         return False
+
+    def __len__(self):
+        return self.length
 
     def __str__(self):
         pairs = ""
         for item in self.map:
             if item is not None:
-                pairs += str(item) + '\n'
+                for pair in item:
+                    pairs += '\t' + str(pair) + '\n'
         return pairs
