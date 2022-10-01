@@ -16,7 +16,7 @@ class Package:
         self.status = status
 
     def __str__(self):
-        return f"{self.id} - {self.address}, {self.city}, {self.state} {self.zip_code} - {self.deadline} - " \
+        return f"{self.package_id} - {self.address}, {self.city}, {self.state} {self.zip_code} - {self.deadline} - " \
                f"{self.weight} - \"{self.notes}\" - {self.status}"
 
     def set_status(self, status):
@@ -45,7 +45,7 @@ def scan_packages():
         for line in reader:
             package = Package(int(line['id']), line['address'], line['city'], line['state'], line['zip_code'],
                               line['deadline'], int(line['weight']), line['notes'], "at hub")
-            _packages.put(package.id, package)
+            _packages.put(package.package_id, package)
 
 
 def get_all_packages():

@@ -19,3 +19,4 @@ def get_location(loc_id):
     for location in _locations:
         if location['id'] == loc_id:
             return location
+
