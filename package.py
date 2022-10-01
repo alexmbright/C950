@@ -4,8 +4,8 @@ import csv
 
 class Package:
 
-    def __init__(self, id, address, city, state, zip_code, deadline, weight, notes, status):
-        self.id = id
+    def __init__(self, package_id, address, city, state, zip_code, deadline, weight, notes, status):
+        self.package_id = package_id
         self.address = address
         self.city = city
         self.state = state
@@ -30,6 +30,9 @@ class Package:
         self.city = city
         self.state = state
         self.zip_code = zip_code
+
+    def update_deadline(self, deadline):
+        self.deadline = deadline
 
 
 _packages = HashMap()
