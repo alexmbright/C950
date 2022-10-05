@@ -1,7 +1,6 @@
 from hashmap import HashMap
 import csv
-import datetime
-import time
+from datetime import datetime
 
 
 class Package:
@@ -52,7 +51,7 @@ def scan_packages():
             deadline = line['deadline']
             if deadline == 'EOD':
                 deadline = "11:59 PM"
-            deadline_time = time.strptime(deadline, '%H:%M %p')
+            deadline_time = datetime.strptime(deadline, '%H:%M %p')
             package = Package(int(line['id']), line['address'], line['city'], line['state'], line['zip_code'],
                               deadline_time, int(line['weight']))
             _packages.put(package.package_id, package)
