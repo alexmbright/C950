@@ -16,6 +16,7 @@ class HashMap:
 
         if self.map[index_hash] is None:
             self.map[index_hash] = list([key_val])
+            self.length += 1
             return True
         for pair in self.map[index_hash]:
             if pair[0] == key:

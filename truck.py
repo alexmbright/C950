@@ -1,4 +1,6 @@
 import package
+import datetime
+import logistics
 
 
 class Truck:
@@ -8,6 +10,7 @@ class Truck:
     def __init__(self, id):
         self.id = id
         self.package_ids = []
+        self.departure_time = logistics.today().replace(hour=8, minute=0, second=0)
 
     def load_package(self, id):
         self.package_ids.append(id)
@@ -29,8 +32,8 @@ class Truck:
     def get_packages(self):
         return self.package_ids
 
-    def has_package(self, id):
-        for package_id in self.package_ids:
-            if package_id == id:
-                return True
-        return False
+    def set_departure_time(self, time):
+        self.departure_time = time
+
+    def get_departure_time(self):
+        return self.departure_time
