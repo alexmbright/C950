@@ -1,32 +1,45 @@
+# Alex Bright 001130844
+
+import logistics
 import package
 import distances
 from truck import Truck
 import datetime
 
 package.scan_packages()
-
-print(package.get_all_packages())
-
 distances.scan_locations()
 distances.scan_distances()
 
-for location in distances.get_all_locations():
-    print(location['id'], "-", location['name'], "\n\t", location['address'], "\n")
+truck1 = Truck(1)
+truck2 = Truck(2)
+truck3 = Truck(3)
 
-print("Distances from 2:", distances.get_all_available(2, None))
+truck1.load_packages([1, 7, 13, 14, 15, 16, 19, 20, 27, 29, 30, 34, 35, 37, 40])
+truck2.load_packages([3, 6, 18, 25, 26, 28, 31, 32, 36, 38, 39])
+truck3.load_packages([2, 4, 5, 8, 9, 10, 11, 12, 17, 21, 22, 23, 24, 33])
 
-visited = [6, 10]
+truck1_start = datetime.datetime(2022, 10, 4, 8, 0)
+truck2_start = datetime.datetime(2022, 10, 4, 9, 5)
+truck3_start = datetime.datetime(2022, 10, 4, 12)
 
-print("Distances from 2 with visited 6 and 10:", distances.get_all_available(2, visited))
+truck1_route = logistics.deliver_packages(truck1, truck1_start)
 
-print("Distance from 1 to 8:", distances.get_distance(1, 8))
+print('Truck 1 delivered', len(truck1_route['delivered']), 'packages')
+print('\tTotal miles traveled:', truck1_route['miles'])
+print('\tTime spent:', truck1_route['time_spent'])
+print('\tReturned to hub at', truck1_route['end_time'].strftime('%I:%M %p'), '\n')
 
-test_locations = [5, 7, 9, 15, 17, 19, 24, 26]
+truck2_route = logistics.deliver_packages(truck2, truck2_start)
 
-print("Distance from 16 to [5, 7, 9, 15, 17, 19, 24, 26]\n", distances.get_available(16, test_locations, None))
-print("Distance from 16 to 5:", distances.get_distance(16, 5))
+print('Truck 2 delivered', len(truck2_route['delivered']), 'packages')
+print('\tTotal miles traveled:', truck2_route['miles'])
+print('\tTime spent:', truck2_route['time_spent'])
+print('\tReturned to hub at', truck2_route['end_time'].strftime('%I:%M %p'), '\n')
 
-print ("Distance from 8 to 1:", distances.get_distance(8, 1))
+truck3_route = logistics.deliver_packages(truck3, truck3_start)
 
-print ("Distance from 8 to 8:", distances.get_distance(8, 8))
+print('Truck 3 delivered', len(truck3_route['delivered']), 'packages')
+print('\tTotal miles traveled:', truck3_route['miles'])
+print('\tTime spent:', truck3_route['time_spent'])
+print('\tReturned to hub at', truck3_route['end_time'].strftime('%I:%M %p'), '\n')
 

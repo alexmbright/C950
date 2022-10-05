@@ -4,7 +4,6 @@ import package
 class Truck:
     capacity = 16
     speed = 18
-    _delivered = []
 
     def __init__(self, id):
         self.id = id

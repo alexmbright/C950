@@ -15,10 +15,11 @@ class Package:
         self.weight = weight
         self.delivered = False
         self.delivery_time = None
+        self.late = "Not Late"
 
     def __str__(self):
-        return f"{self.package_id} - {self.address}, {self.city}, {self.state} {self.zip_code} - {self.deadline} - " \
-               f"{self.weight} - \"{self.delivered}\" - {self.delivery_time}"
+        return f"{self.package_id} - {self.address}, {self.city}, {self.state} {self.zip_code} - " \
+               f"{self.weight} - \"{self.delivered}\" - {self.delivery_time} - {self.late}"
 
     def get_id(self):
         return self.package_id
@@ -26,9 +27,8 @@ class Package:
     def set_delivered(self, delivered, delivery_time):
         self.delivered = delivered
         self.delivery_time = delivery_time
-
-    def is_delivered(self):
-        return self.delivered
+        if self.delivery_time > self.deadline:
+            self.late = "LATE"
 
     def get_delivery_time(self):
         return self.delivery_time
@@ -51,7 +51,8 @@ def scan_packages():
             deadline = line['deadline']
             if deadline == 'EOD':
                 deadline = "11:59 PM"
-            deadline_time = datetime.strptime(deadline, '%H:%M %p')
+            deadline = "2022-10-04 " + deadline
+            deadline_time = datetime.strptime(deadline, '%Y-%m-%d %I:%M %p')
             package = Package(int(line['id']), line['address'], line['city'], line['state'], line['zip_code'],
                               deadline_time, int(line['weight']))
             _packages.put(package.package_id, package)
