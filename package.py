@@ -1,10 +1,12 @@
 from hashmap import HashMap
 import csv
+import datetime
+import time
 
 
 class Package:
 
-    def __init__(self, package_id, address, city, state, zip_code, deadline, weight, notes, status):
+    def __init__(self, package_id, address, city, state, zip_code, deadline, weight):
         self.package_id = package_id
         self.address = address
         self.city = city
@@ -12,27 +14,31 @@ class Package:
         self.zip_code = zip_code
         self.deadline = deadline
         self.weight = weight
-        self.notes = notes
-        self.status = status
+        self.delivered = False
+        self.delivery_time = None
 
     def __str__(self):
         return f"{self.package_id} - {self.address}, {self.city}, {self.state} {self.zip_code} - {self.deadline} - " \
-               f"{self.weight} - \"{self.notes}\" - {self.status}"
+               f"{self.weight} - \"{self.delivered}\" - {self.delivery_time}"
 
-    def set_status(self, status):
-        self.status = status
+    def get_id(self):
+        return self.package_id
 
-    def get_status(self):
-        return self.status
+    def set_delivered(self, delivered, delivery_time):
+        self.delivered = delivered
+        self.delivery_time = delivery_time
 
-    def change_address(self, address, city, state, zip_code):
+    def is_delivered(self):
+        return self.delivered
+
+    def get_delivery_time(self):
+        return self.delivery_time
+
+    def update_address(self, address, city, state, zip_code):
         self.address = address
         self.city = city
         self.state = state
         self.zip_code = zip_code
-
-    def update_deadline(self, deadline):
-        self.deadline = deadline
 
 
 _packages = HashMap()
@@ -43,8 +49,12 @@ def scan_packages():
         reader = csv.DictReader(file)
 
         for line in reader:
+            deadline = line['deadline']
+            if deadline == 'EOD':
+                deadline = "11:59 PM"
+            deadline_time = time.strptime(deadline, '%H:%M %p')
             package = Package(int(line['id']), line['address'], line['city'], line['state'], line['zip_code'],
-                              line['deadline'], int(line['weight']), line['notes'], "at hub")
+                              deadline_time, int(line['weight']))
             _packages.put(package.package_id, package)
 
 
