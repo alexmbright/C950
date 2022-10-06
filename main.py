@@ -156,6 +156,7 @@ while not flags['exit']:
         while not flags['back']:
             print(f"\n\tTime being used in lookup: {time.strftime('%I:%M %p')}")
             print("\tSelect a filter:")
+            print("\t" + f"{'all:':>10}\t\tView all packages")
             print("\t" + f"{'i:':>10}\t\tPackage ID")
             print("\t" + f"{'s:':>10}\t\tPackage status")
             print("\t" + f"{'a:':>10}\t\tDelivery address")
@@ -172,8 +173,23 @@ while not flags['exit']:
             if user == 'back':
                 flags['back'] = True
                 continue
+            # view all packages
+            if user == 'all':
+                packages = logistics.get_all_packages()
+                if len(packages) == 0:
+                    print("\n\tNo packages found!\n")
+                    continue
+                print("\n\tPackages found in system:")
+                for i in range(1, len(packages) + 1):
+                    package = logistics.get_package(i)
+                    if package.get_id() == 9 and time < logistics.today().replace(hour=10, minute=20):
+                        package = copy.deepcopy(package)
+                        package.update_address('300 State St', 'Salt Lake City', 'UT', '84103')
+                    print("\t\t" + package.status_str(time))
+                print("\n\tEnter any key to return...\n")
+                input("> ")
             # run package ID lookup
-            if user == 'i':
+            elif user == 'i':
                 flags['valid'] = False
                 flags['back'] = False
                 package = None
@@ -216,9 +232,9 @@ while not flags['exit']:
                 statuses = {1: 'at the hub', 2: 'en route', 3: 'delivered'}
                 while not flags['valid'] and not flags['back']:
                     print("\n\tSelect a status:")
-                    print("\t" + f"{'1:':>10}\t\tAt the hub")
-                    print("\t" + f"{'2:':>10}\t\tEn route")
-                    print("\t" + f"{'3:':>10}\t\tDelivered")
+                    print("\t" + f"{'1:':>10}\t\t\033[01mAT THE HUB\033[0m")
+                    print("\t" + f"{'2:':>10}\t\t\033[01m\033[93mEN ROUTE\033[0m")
+                    print("\t" + f"{'3:':>10}\t\t\033[01m\033[32mDELIVERED\033[0m")
                     print("\tTo cancel, type 'back'\n")
                     user = input("> ").lower().strip()
                     if user == 'back':
@@ -275,7 +291,35 @@ while not flags['exit']:
                 print("\n\tEnter any key to return...\n")
                 input("> ")
             elif user == 'c':
-
+                flags['valid'] = False
+                flags['back'] = False
+                packages = []
+                while not flags['valid'] and not flags['back']:
+                    print("\n\tEnter the city to look up (case-insensitive).")
+                    print("\tTo cancel, type 'back'\n")
+                    user = input("> ").lower().strip()
+                    if user == 'back':
+                        flags['back'] = True
+                        continue
+                    if len(user) == 0:
+                        print("\n\tPlease enter an input...")
+                        continue
+                    packages = logistics.get_packages_by_city(user)
+                    if len(packages) == 0:
+                        print("\n\tNo packages found with that city! Please try again...")
+                        continue
+                    flags['valid'] = True
+                if flags['back']:
+                    flags['back'] = False
+                    continue
+                print(f"\n\tPackages found with city '{user.title()}':")
+                for package in packages:
+                    if package.get_id() == 9 and time < logistics.today().replace(hour=10, minute=20):
+                        package = copy.deepcopy(package)
+                        package.update_address('300 State St', 'Salt Lake City', 'UT', '84103')
+                    print("\t\t" + package.status_str(time))
+                print("\n\tEnter any key to return...\n")
+                input("> ")
         # if back requested, go back...
         if flags['back']:
             continue

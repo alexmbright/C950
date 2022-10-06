@@ -35,15 +35,15 @@ class Package:
     def status_str(self, time):
         deadline_str = self.deadline.strftime('%I:%M %p')
         if deadline_str == '11:59 PM':
-            deadline_str = 'end of day'
+            deadline_str = 'EOD'
         delivery_time_str = self.delivery_time.strftime('%I:%M %p')
         if self.get_status(time) == "at the hub":
-            return f"{self.package_id:02} - AT THE HUB (due by {deadline_str}) - {self.address}, {self.city}, " \
+            return f"{self.package_id:02} - \033[01mAT THE HUB\033[0m (due by {deadline_str}) - {self.address}, {self.city}, " \
                    f"{self.state} {self.zip_code}"
         if self.get_status(time) == "en route":
-            return f"{self.package_id:02} - EN ROUTE on TRUCK {self.truck} (due by {deadline_str}) - {self.address}, {self.city}, " \
+            return f"{self.package_id:02} - \033[01m\033[93mEN ROUTE\033[0m\033[93m on TRUCK {self.truck} (due by {deadline_str})\033[0m - {self.address}, {self.city}, " \
                    f"{self.state} {self.zip_code}"
-        return f"{self.package_id:02} - DELIVERED at {delivery_time_str} - {self.address}, {self.city}, " \
+        return f"{self.package_id:02} - \033[01m\033[32mDELIVERED\033[0m\033[32m at {delivery_time_str}\033[0m - {self.address}, {self.city}, " \
                f"{self.state} {self.zip_code}"
 
     # O(1)
