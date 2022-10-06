@@ -2,7 +2,6 @@
 
 import logistics
 from truck import Truck
-import datetime
 
 logistics.scan_packages()
 logistics.scan_locations()
@@ -18,33 +17,30 @@ trucks[1].load_packages([1, 7, 13, 14, 15, 16, 19, 20, 27, 29, 30, 34, 35, 37, 4
 trucks[2].load_packages([3, 6, 18, 25, 26, 28, 31, 32, 36, 38, 39])
 trucks[3].load_packages([2, 4, 5, 8, 9, 10, 11, 12, 17, 21, 22, 23, 24, 33])
 
-trucks[1].set_departure_time(datetime.datetime(2022, 10, 4, 8, 0))
-trucks[2].set_departure_time(datetime.datetime(2022, 10, 4, 9, 5))
-trucks[3].set_departure_time(datetime.datetime(2022, 10, 4, 12))
+trucks[1].set_departure_time(logistics.today().replace(hour=8))
+trucks[2].set_departure_time(logistics.today().replace(hour=9, minute=5))
+trucks[3].set_departure_time(logistics.today().replace(hour=12))
 
-truck1_route = logistics.deliver_packages(trucks[1])
+trucks[1].set_metrics(logistics.deliver_packages(trucks[1]))
+trucks[2].set_metrics(logistics.deliver_packages(trucks[2]))
+trucks[3].set_metrics(logistics.deliver_packages(trucks[3]))
 
-print('Truck 1 delivered', len(truck1_route['delivered']), 'packages')
-print('\tTotal miles traveled:', truck1_route['miles'])
-print('\tTime spent:', truck1_route['time_spent'])
-print('\tReturned to hub at', truck1_route['end_time'].strftime('%I:%M %p'), '\n')
+print("\n\tWelcome to the WGUPS Portal!")
+print("\n\tEnter any key to simulate today's deliveries...")
+print("\tTo exit the program, type 'exit'\n")
 
-truck2_route = logistics.deliver_packages(trucks[2])
+user = input("> ").lower()
+if user == 'exit':
+    exit()
 
-print('Truck 2 delivered', len(truck2_route['delivered']), 'packages')
-print('\tTotal miles traveled:', truck2_route['miles'])
-print('\tTime spent:', truck2_route['time_spent'])
-print('\tReturned to hub at', truck2_route['end_time'].strftime('%I:%M %p'), '\n')
+logistics.print_metrics(1)
+logistics.print_metrics(2)
+logistics.print_metrics(3)
 
-truck3_route = logistics.deliver_packages(trucks[3])
+total_miles = trucks[1].get_metrics()['miles'] + trucks[2].get_metrics()['miles'] + trucks[3].get_metrics()['miles']
+total_td = str(trucks[3].get_metrics()['end_time'] - trucks[1].get_departure_time()).split(':')
+total_time = f"{int(total_td[0]):01}h {int(total_td[1]):02}m"
 
-print('Truck 3 delivered', len(truck3_route['delivered']), 'packages')
-print('\tTotal miles traveled:', truck3_route['miles'])
-print('\tTime spent:', truck3_route['time_spent'])
-print('\tReturned to hub at', truck3_route['end_time'].strftime('%I:%M %p'), '\n')
-
-print('Package Metrics at EOD:\n---------------------------')
-for i in range(1, 41):
-    pkg = logistics.get_package(i)
-    print(f"\t{pkg.status_str(logistics.today().replace(hour=23, minute=59, second=59))}")
+print("\n\t" + f"{'Total miles travelled: ':<29}" + f"{total_miles:<20}")
+print("\t" + f"{'Total delivery time: ':<29}" + f"{total_time:<20}")
 

@@ -14,7 +14,7 @@ _distances = []
 # O(1)
 _trucks = {}
 # O(1)
-_today = datetime.today()
+_today = datetime.combine(datetime.today(), time(0))
 
 
 # O(1)
@@ -22,14 +22,15 @@ def today():
     return _today
 
 
+# O(n^2)
 def deliver_packages(truck):
     start_time = truck.get_departure_time()
     packages = truck.get_packages()
     if not packages:
         return
+
     package_locations = {}
     locations = []
-    # O(n)
     for pkg in packages:
         pkg_loc = int(get_location(get_package(pkg).address)['id'])
         if pkg_loc not in package_locations:
@@ -42,7 +43,6 @@ def deliver_packages(truck):
     total_miles = 0
     delivered = []
 
-    # O(n)
     while len(delivered) < len(packages):
         global address_updated_9
         if not address_updated_9 and current_time >= today().replace(hour=10, minute=20):
@@ -80,6 +80,8 @@ def deliver_packages(truck):
 
 
 # ------------------- PACKAGE METHODS -------------------
+
+# O(n)
 def scan_packages():
     with open('data/packages.csv') as file:
         reader = csv.DictReader(file)
@@ -94,12 +96,12 @@ def scan_packages():
             _packages.put(package.package_id, package)
 
 
-# O(1)
+# O(n)
 def get_all_packages():
     return _packages
 
 
-# O(1)
+# O(n)
 def get_package(package_id):
     return _packages.get(package_id)
 
@@ -107,7 +109,7 @@ def get_package(package_id):
 # O(n)
 def get_packages_by_address(address):
     result = []
-    for i in range(1, 41):
+    for i in range(1, len(_packages) + 1):
         package = _packages.get(i)
         if package.address == address:
             result.append(package)
@@ -117,7 +119,7 @@ def get_packages_by_address(address):
 # O(n)
 def get_packages_by_deadline(deadline):
     result = []
-    for i in range(1, 41):
+    for i in range(1, len(_packages) + 1):
         package = _packages.get(i)
         if package.deadline == deadline:
             result.append(package)
@@ -127,7 +129,7 @@ def get_packages_by_deadline(deadline):
 # O(n)
 def get_packages_by_city(city):
     result = []
-    for i in range(1, 41):
+    for i in range(1, len(_packages) + 1):
         package = _packages.get(i)
         if package.city == city:
             result.append(package)
@@ -137,7 +139,7 @@ def get_packages_by_city(city):
 # O(n)
 def get_packages_by_zip(zip_code):
     result = []
-    for i in range(1, 41):
+    for i in range(1, len(_packages) + 1):
         package = _packages.get(i)
         if package.zip_code == zip_code:
             result.append(package)
@@ -147,7 +149,7 @@ def get_packages_by_zip(zip_code):
 # O(n)
 def get_packages_by_weight(weight):
     result = []
-    for i in range(1, 41):
+    for i in range(1, len(_packages) + 1):
         package = _packages.get(i)
         if package.weight == weight:
             result.append(package)
@@ -157,7 +159,7 @@ def get_packages_by_weight(weight):
 # O(n)
 def get_packages_by_status(status):
     result = []
-    for i in range(1, 41):
+    for i in range(1, len(_packages) + 1):
         package = _packages.get(i)
         if package.status == status:
             result.append(package)
@@ -181,7 +183,20 @@ def get_all_trucks():
     return _trucks
 
 
+def print_metrics(truck_id):
+    metrics = get_truck(truck_id).get_metrics()
+    print("\n\tTruck", truck_id, "delivery metrics:")
+    print("\t\t" + f"{'Departure time: ':<25}" + f"{get_truck(truck_id).get_departure_time().strftime('%I:%M %p'):<20}")
+    print("\t\t" + f"{'Packages delivered: ':<25}" + f"{len(metrics['delivered']):<20}")
+    # travel = str(metrics['miles']) + ' miles over ' + metrics['time_spent']
+    print("\t\t" + f"{'Total miles: ':<25}" + f"{metrics['miles']:<20}")
+    print("\t\t" + f"{'Total time spent: ':<25}" + f"{metrics['time_spent']:<20}")
+    print("\t\t" + f"{'Return to hub time: ':<25}" + f"{metrics['end_time'].strftime('%I:%M %p'):<20}")
+
+
 # ------------------- LOCATION METHODS -------------------
+
+# O(n)
 def scan_locations():
     with open('data/locations.csv') as file:
         reader = csv.DictReader(file)
@@ -203,6 +218,8 @@ def get_location(address):
 
 
 # ------------------- DISTANCE METHODS -------------------
+
+# O(n^2)
 def scan_distances():
     with open('data/distances.csv') as file:
         reader = csv.reader(file)
