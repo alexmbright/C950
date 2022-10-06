@@ -1,7 +1,9 @@
 # Alex Bright 001130844
+import copy
 
 import logistics
 from truck import Truck
+from datetime import datetime
 
 logistics.scan_packages()
 logistics.scan_locations()
@@ -29,18 +31,254 @@ print("\n\tWelcome to the WGUPS Portal!")
 print("\n\tEnter any key to simulate today's deliveries...")
 print("\tTo exit the program, type 'exit'\n")
 
-user = input("> ").lower()
+user = input("> ").lower().strip()
 if user == 'exit':
     exit()
 
-logistics.print_metrics(1)
-logistics.print_metrics(2)
-logistics.print_metrics(3)
+logistics.print_all_metrics()
 
-total_miles = trucks[1].get_metrics()['miles'] + trucks[2].get_metrics()['miles'] + trucks[3].get_metrics()['miles']
-total_td = str(trucks[3].get_metrics()['end_time'] - trucks[1].get_departure_time()).split(':')
-total_time = f"{int(total_td[0]):01}h {int(total_td[1]):02}m"
+flags = {'exit': False}
+empty_inputs = 0
 
-print("\n\t" + f"{'Total miles travelled: ':<29}" + f"{total_miles:<20}")
-print("\t" + f"{'Total delivery time: ':<29}" + f"{total_time:<20}")
+while not flags['exit']:
+    print("\n\tSelect an option:")
+    print("\t" + f"{'m [(a)|1-3]:':>15}\t\t{'Print delivery metrics (all or truck 1-3)'}")
+    print("\t" + f"{'p:':>15}\t\t{'Lookup packages at specific time'}")
+    print("\t" + f"{'exit:':>15}\t\t{'Exit the WGUPS Portal'}\n")
 
+    user = input("> ").lower().strip()
+    if user == 'exit':
+        print("\n\tThanks for using the WGUPS Portal! Bye...")
+        flags['exit'] = True
+        continue
+    # empty input validation
+    if len(user) == 0:
+        print("\n\tPlease enter an input...")
+        empty_inputs += 1
+        if empty_inputs == 2:
+            print("\tProgram will exit after 1 more empty entry...")
+        elif empty_inputs == 3:
+            print("\tToo many empty entries! Exiting program...")
+            flags['exit'] = True
+        continue
+    empty_inputs = 0
+    # metric input validation and response
+    if user[0] == 'm':
+        if len(user) > 3:
+            print("\n\tInvalid input! Please try again...")
+            continue
+        if len(user) == 1:
+            logistics.print_all_metrics()
+        elif len(user) == 2:
+            print("\n\tInvalid input! Please try again...")
+            continue
+        elif user[2] == 'a':
+            logistics.print_all_metrics()
+        elif user[2] == '1':
+            logistics.print_metrics(1)
+        elif user[2] == '2':
+            logistics.print_metrics(2)
+        elif user[2] == '3':
+            logistics.print_metrics(3)
+        else:
+            print("\n\tInvalid input! Please try again...")
+            continue
+    # input validation
+    elif len(user) > 1:
+        print("\n\tInvalid input! Please try again...")
+        continue
+    # package input response (ask for time)
+    elif user == 'p':
+        flags['valid'] = False
+        flags['back'] = False
+        time = logistics.today()
+        # time validation and check for back request
+        while not flags['valid'] and not flags['back']:
+            print("\n\tEnter the time you want to use for looking up packages.")
+            print("\t\tFor 12-hour time format, please include a space followed by 'am' or 'pm'.")
+            print("\t\tFor 24-hour time format, format as 'HH:MM' (ex: '16:30').")
+            print("\t\tTo cancel, type 'back'.\n")
+            user = input("> ").lower().strip()
+            if len(user) == 0:
+                print("\n\tPlease enter an input...")
+                continue
+            if user == 'back':
+                flags['back'] = True
+                continue
+            user_spl = user.split(":")
+            if len(user_spl) != 2:
+                print("\n\tInvalid input! Please try again...")
+                continue
+            if len(user_spl) == 2:
+                format_spl = user_spl[1].split()
+                # 24-hour format input validation
+                if len(format_spl) > 2:
+                    print("\n\tInvalid input! Please try again...")
+                    continue
+                if len(format_spl) == 1:
+                    # invalid if not numeric
+                    if not user_spl[0].isnumeric() or not user_spl[1].isnumeric():
+                        print("\n\tInvalid input! Please try again...")
+                        continue
+                    # invalid if time out of range
+                    if int(user_spl[0]) >= 24 or int(user_spl[0]) < 0 \
+                            or int(user_spl[1]) >= 60 or int(user_spl[0]) < 0:
+                        print("\n\tTime out of range! Please try again...")
+                        continue
+                    # set time and flag
+                    time_str = f"{int(user_spl[0])}:{int(user_spl[1])}"
+                    time = datetime.combine(time, datetime.strptime(time_str, "%H:%M").time())
+                    flags['valid'] = True
+                    continue
+                if len(format_spl) == 2:
+                    # invalid if not numeric
+                    if not user_spl[0].isnumeric() or not format_spl[0].isnumeric():
+                        print("\n\tInvalid input! Please try again...")
+                        continue
+                    # invalid if not am or pm
+                    if format_spl[1] != "am" and format_spl[1] != "pm":
+                        print("\n\tInvalid input! Please try again...")
+                        continue
+                    # invalid if time out of range
+                    if int(user_spl[0]) >= 13 or int(user_spl[0]) < 0 \
+                            or int(format_spl[0]) >= 60 or int(format_spl[0]) < 0:
+                        print("\n\tTime out of range! Please try again...")
+                        continue
+                    # set time and flag
+                    time_str = f"{int(user_spl[0])}:{int(format_spl[0])} {format_spl[1]}"
+                    time = datetime.combine(time, datetime.strptime(time_str, "%I:%M %p").time())
+                    flags['valid'] = True
+        # if back requested, go back...
+        if flags['back']:
+            continue
+        flags['back'] = False
+        # run package lookup
+        while not flags['back']:
+            print(f"\n\tTime being used in lookup: {time.strftime('%I:%M %p')}")
+            print("\tSelect a filter:")
+            print("\t" + f"{'i:':>10}\t\tPackage ID")
+            print("\t" + f"{'s:':>10}\t\tPackage status")
+            print("\t" + f"{'a:':>10}\t\tDelivery address")
+            print("\t" + f"{'c:':>10}\t\tDelivery city")
+            print("\t" + f"{'z:':>10}\t\tDelivery zip code")
+            print("\t" + f"{'w:':>10}\t\tDelivery weight")
+            print("\t" + f"{'d:':>10}\t\tDelivery deadline")
+            print("\t" + f"{'back:':>10}\t\tCancel package lookup\n")
+            user = input("> ").lower().strip()
+            # invalid if empty input
+            if len(user) == 0:
+                print("\n\tPlease enter an input...")
+                continue
+            if user == 'back':
+                flags['back'] = True
+                continue
+            # run package ID lookup
+            if user == 'i':
+                flags['valid'] = False
+                flags['back'] = False
+                package = None
+                while not flags['valid'] and not flags['back']:
+                    print("\n\tEnter package ID to look up.")
+                    print("\tTo cancel, type 'back'\n")
+                    user = input("> ").lower().strip()
+                    if len(user) == 0:
+                        print("\n\tPlease enter an input...")
+                        continue
+                    if user == 'back':
+                        flags['back'] = True
+                        continue
+                    # invalid if not numeric
+                    if not user.isnumeric():
+                        print("\n\tInvalid input! Please try again...")
+                        continue
+                    package = logistics.get_package(int(user))
+                    # validate package found
+                    if package is None:
+                        print("\n\tNo packages found with that ID! Please try again...")
+                        continue
+                    # set flag
+                    flags['valid'] = True
+                if flags['back']:
+                    flags['back'] = False
+                    continue
+                print(f"\n\tPackages found with ID {package.get_id()}:")
+                if package.get_id() == 9 and time < logistics.today().replace(hour=10, minute=20):
+                    package = copy.deepcopy(package)
+                    package.update_address('300 State St', 'Salt Lake City', 'UT', '84103')
+                print("\t\t" + package.status_str(time))
+                print("\n\tEnter any key to return...\n")
+                input("> ")
+            # run package status lookup
+            elif user == 's':
+                flags['valid'] = False
+                flags['back'] = False
+                packages = []
+                statuses = {1: 'at the hub', 2: 'en route', 3: 'delivered'}
+                while not flags['valid'] and not flags['back']:
+                    print("\n\tSelect a status:")
+                    print("\t" + f"{'1:':>10}\t\tAt the hub")
+                    print("\t" + f"{'2:':>10}\t\tEn route")
+                    print("\t" + f"{'3:':>10}\t\tDelivered")
+                    print("\tTo cancel, type 'back'\n")
+                    user = input("> ").lower().strip()
+                    if user == 'back':
+                        flags['back'] = True
+                        continue
+                    if len(user) == 0:
+                        print("\n\tPlease enter an input...")
+                        continue
+                    if user != '1' and user != '2' and user != '3':
+                        print("\n\tInvalid input! Please try again...")
+                        continue
+                    status = statuses[int(user)]
+                    packages = logistics.get_packages_by_status(status, time)
+                    if len(packages) == 0:
+                        print("\n\tNo packages found with that status! Please try again...")
+                        continue
+                    flags['valid'] = True
+                if flags['back']:
+                    flags['back'] = False
+                    continue
+                print(f"\n\tPackages found with status '{status}':")
+                for package in packages:
+                    if package.get_id() == 9 and time < logistics.today().replace(hour=10, minute=20):
+                        package = copy.deepcopy(package)
+                        package.update_address('300 State St', 'Salt Lake City', 'UT', '84103')
+                    print("\t\t" + package.status_str(time))
+                print("\n\tEnter any key to return...\n")
+                input("> ")
+            elif user == 'a':
+                flags['valid'] = False
+                flags['back'] = False
+                packages = []
+                while not flags['valid'] and not flags['back']:
+                    print("\n\tEnter the address to look up (case-insensitive).")
+                    print("\tTo cancel, type 'back'\n")
+                    user = input("> ").lower().strip()
+                    if user == 'back':
+                        flags['back'] = True
+                        continue
+                    if len(user) == 0:
+                        print("\n\tPlease enter an input...")
+                        continue
+                    packages = logistics.get_packages_by_address(user, time)
+                    if len(packages) == 0:
+                        print("\n\tNo packages found with that address! Please try again...")
+                        continue
+                    flags['valid'] = True
+                if flags['back']:
+                    flags['back'] = False
+                    continue
+                print(f"\n\tPackages found with address '{user.title()}':")
+                for package in packages:
+                    print("\t\t" + package.status_str(time))
+                print("\n\tEnter any key to return...\n")
+                input("> ")
+            elif user == 'c':
+
+        # if back requested, go back...
+        if flags['back']:
+            continue
+    else:
+        print("\n\tInvalid input! Please try again...")
+        continue

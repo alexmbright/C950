@@ -1,3 +1,4 @@
+import copy
 from datetime import datetime, timedelta, time
 from package import Package
 from hashmap import HashMap
@@ -107,11 +108,14 @@ def get_package(package_id):
 
 
 # O(n)
-def get_packages_by_address(address):
+def get_packages_by_address(address, time):
     result = []
     for i in range(1, len(_packages) + 1):
         package = _packages.get(i)
-        if package.address == address:
+        if package.get_id() == 9 and time < today().replace(hour=10, minute=20):
+            package = copy.deepcopy(package)
+            package.update_address('300 State St', 'Salt Lake City', 'UT', '84103')
+        if package.address.lower() == address.lower():
             result.append(package)
     return result
 
@@ -131,7 +135,7 @@ def get_packages_by_city(city):
     result = []
     for i in range(1, len(_packages) + 1):
         package = _packages.get(i)
-        if package.city == city:
+        if package.city.lower() == city.lower():
             result.append(package)
     return result
 
@@ -157,11 +161,11 @@ def get_packages_by_weight(weight):
 
 
 # O(n)
-def get_packages_by_status(status):
+def get_packages_by_status(status, time_req):
     result = []
     for i in range(1, len(_packages) + 1):
         package = _packages.get(i)
-        if package.status == status:
+        if package.get_status(time_req).lower() == status.lower():
             result.append(package)
     return result
 
@@ -183,6 +187,7 @@ def get_all_trucks():
     return _trucks
 
 
+# O(1)
 def print_metrics(truck_id):
     metrics = get_truck(truck_id).get_metrics()
     print("\n\tTruck", truck_id, "delivery metrics:")
@@ -192,6 +197,21 @@ def print_metrics(truck_id):
     print("\t\t" + f"{'Total miles: ':<25}" + f"{metrics['miles']:<20}")
     print("\t\t" + f"{'Total time spent: ':<25}" + f"{metrics['time_spent']:<20}")
     print("\t\t" + f"{'Return to hub time: ':<25}" + f"{metrics['end_time'].strftime('%I:%M %p'):<20}")
+
+
+# O(1)
+def print_all_metrics():
+    print_metrics(1)
+    print_metrics(2)
+    print_metrics(3)
+
+    total_miles = get_truck(1).get_metrics()['miles'] + get_truck(2).get_metrics()['miles'] + \
+                  get_truck(3).get_metrics()['miles']
+    total_td = str(get_truck(3).get_metrics()['end_time'] - get_truck(1).get_departure_time()).split(':')
+    total_time = f"{int(total_td[0]):01}h {int(total_td[1]):02}m"
+
+    print("\n\t" + f"{'Total miles travelled: ':<29}" + f"{total_miles:<20}")
+    print("\t" + f"{'Total delivery time: ':<29}" + f"{total_time:<20}")
 
 
 # ------------------- LOCATION METHODS -------------------
@@ -213,7 +233,7 @@ def get_all_locations():
 # O(n)
 def get_location(address):
     for location in _locations:
-        if location['address'] == address:
+        if location['address'].lower() == address.lower():
             return location
 
 
