@@ -320,6 +320,109 @@ while not flags['exit']:
                     print("\t\t" + package.status_str(time))
                 print("\n\tEnter any key to return...\n")
                 input("> ")
+            elif user == 'z':
+                flags['valid'] = False
+                flags['back'] = False
+                packages = []
+                while not flags['valid'] and not flags['back']:
+                    print("\n\tEnter the zip code to look up.")
+                    print("\tTo cancel, type 'back'\n")
+                    user = input("> ").lower().strip()
+                    if user == 'back':
+                        flags['back'] = True
+                        continue
+                    if len(user) == 0:
+                        print("\n\tPlease enter an input...")
+                        continue
+                    if not user.isnumeric():
+                        print("\n\tInvalid input! Please try again...")
+                        continue
+                    packages = logistics.get_packages_by_zip(user, time)
+                    if len(packages) == 0:
+                        print("\n\tNo packages found with that zip code! Please try again...")
+                        continue
+                    flags['valid'] = True
+                if flags['back']:
+                    flags['back'] = False
+                    continue
+                print(f"\n\tPackages found with zip code '{user}':")
+                for package in packages:
+                    print("\t\t" + package.status_str(time))
+                print("\n\tEnter any key to return...\n")
+                input("> ")
+            elif user == 'w':
+                flags['valid'] = False
+                flags['back'] = False
+                packages = []
+                while not flags['valid'] and not flags['back']:
+                    print("\n\tEnter the package weight to look up (kg).")
+                    print("\tTo cancel, type 'back'\n")
+                    user = input("> ").lower().strip()
+                    if user == 'back':
+                        flags['back'] = True
+                        continue
+                    if len(user) == 0:
+                        print("\n\tPlease enter an input...")
+                        continue
+                    if not user.isnumeric():
+                        print("\n\tInvalid input! Please try again...")
+                        continue
+                    packages = logistics.get_packages_by_weight(int(user))
+                    if len(packages) == 0:
+                        print("\n\tNo packages found with that weight! Please try again...")
+                        continue
+                    flags['valid'] = True
+                if flags['back']:
+                    flags['back'] = False
+                    continue
+                print(f"\n\tPackages found with weight '{user}':")
+                for package in packages:
+                    if package.get_id() == 9 and time < logistics.today().replace(hour=10, minute=20):
+                        package = copy.deepcopy(package)
+                        package.update_address('300 State St', 'Salt Lake City', 'UT', '84103')
+                    print("\t\t" + package.status_str(time))
+                print("\n\tEnter any key to return...\n")
+                input("> ")
+            elif user == 'd':
+                flags['valid'] = False
+                flags['back'] = False
+                packages = []
+                deadlines = {1: logistics.today().replace(hour=9, minute=0),
+                             2: logistics.today().replace(hour=10, minute=30),
+                             3: logistics.today().replace(hour=23, minute=59)}
+                while not flags['valid'] and not flags['back']:
+                    print("\n\tSelect a deadline:")
+                    print(f"\t{'1:':>10}\t\t9:00 AM")
+                    print(f"\t{'2:':>10}\t\t10:30 AM")
+                    print(f"\t{'3:':>10}\t\tEnd of day")
+                    print("\tTo cancel, type 'back'\n")
+                    user = input("> ").lower().strip()
+                    if user == 'back':
+                        flags['back'] = True
+                        continue
+                    if len(user) == 0:
+                        print("\n\tPlease enter an input...")
+                        continue
+                    if user != '1' and user != '2' and user != '3':
+                        print("\n\tInvalid input! Please try again...")
+                        continue
+                    deadline = deadlines[int(user)]
+                    packages = logistics.get_packages_by_deadline(deadline)
+                    if len(packages) == 0:
+                        print("\n\tNo packages found with that deadline! Please try again...")
+                        continue
+                    flags['valid'] = True
+                if flags['back']:
+                    flags['back'] = False
+                    continue
+                print(f"\n\tPackages found with deadline '{deadline.strftime('%I:%M %p')}':")
+                for package in packages:
+                    if package.get_id() == 9 and time < logistics.today().replace(hour=10, minute=20):
+                        package = copy.deepcopy(package)
+                        package.update_address('300 State St', 'Salt Lake City', 'UT', '84103')
+                    print("\t\t" + package.status_str(time))
+                print("\n\tEnter any key to return...\n")
+                input("> ")
         # if back requested, go back...
         if flags['back']:
             continue

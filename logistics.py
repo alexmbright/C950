@@ -141,10 +141,13 @@ def get_packages_by_city(city):
 
 
 # O(n)
-def get_packages_by_zip(zip_code):
+def get_packages_by_zip(zip_code, time):
     result = []
     for i in range(1, len(_packages) + 1):
         package = _packages.get(i)
+        if package.get_id() == 9 and time < today().replace(hour=10, minute=20):
+            package = copy.deepcopy(package)
+            package.update_address('300 State St', 'Salt Lake City', 'UT', '84103')
         if package.zip_code == zip_code:
             result.append(package)
     return result
