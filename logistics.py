@@ -57,12 +57,12 @@ def deliver_packages(truck):
                 continue
             if neighbor['distance'] < nearest['distance']:
                 nearest = {'id': neighbor['id'], 'distance': neighbor['distance']}
+        travel_minutes = (nearest['distance'] / truck.speed) * 60
+        current_time += timedelta(minutes=travel_minutes)
         for pkg in package_locations.get(nearest['id']):
             nearest_package = get_package(pkg)
             delivered.append(nearest_package.get_id())
             nearest_package.set_delivered(True, current_time.replace(second=0))
-        travel_minutes = (nearest['distance'] / truck.speed) * 60
-        current_time += timedelta(minutes=travel_minutes)
         visited_locations.append(nearest['id'])
         current_location = nearest['id']
         total_miles += nearest['distance']
@@ -90,7 +90,7 @@ def scan_packages():
         for line in reader:
             deadline = line['deadline']
             if deadline == 'EOD':
-                deadline = "11:59 PM"
+                deadline = "5:00 PM"
             deadline_time = datetime.combine(today(), datetime.strptime(deadline, '%I:%M %p').time())
             package = Package(int(line['id']), line['address'], line['city'], line['state'], line['zip_code'],
                               deadline_time, int(line['weight']))

@@ -64,23 +64,16 @@ while not flags['exit']:
     empty_inputs = 0
     # metric input validation and response
     if user[0] == 'm':
-        if len(user) > 3:
+        if len(user) > 3 or len(user) == 2:
             print("\n\tInvalid input! Please try again...")
             continue
         if len(user) == 1:
             logistics.print_all_metrics()
-        elif len(user) == 2:
-            print("\n\tInvalid input! Please try again...")
             continue
-        elif user[2] == '1':
-            logistics.print_metrics(1)
-        elif user[2] == '2':
-            logistics.print_metrics(2)
-        elif user[2] == '3':
-            logistics.print_metrics(3)
-        else:
-            print("\n\tInvalid input! Please try again...")
+        if user[2] != '1' and user[2] != '2' and user[2] != '3':
+            print("\n\tEnter a number 1-3! Please try again...")
             continue
+        logistics.print_metrics(int(user[2]))
     # input validation
     elif len(user) > 1:
         print("\n\tInvalid input! Please try again...")
@@ -387,7 +380,7 @@ while not flags['exit']:
                 packages = []
                 deadlines = {1: logistics.today().replace(hour=9, minute=0),
                              2: logistics.today().replace(hour=10, minute=30),
-                             3: logistics.today().replace(hour=23, minute=59)}
+                             3: logistics.today().replace(hour=17, minute=0)}
                 while not flags['valid'] and not flags['back']:
                     print("\n\tSelect a deadline:")
                     print(f"\t{'1:':>10}\t\t9:00 AM")
@@ -413,7 +406,8 @@ while not flags['exit']:
                 if flags['back']:
                     flags['back'] = False
                     continue
-                print(f"\n\tPackages found with deadline '{deadline.strftime('%I:%M %p')}':")
+                deadline_str = deadline.strftime('%I:%M %p')
+                print(f"\n\tPackages found with deadline '{deadline_str if deadline_str != '05:00 PM' else 'end of day'}':")
                 for package in packages:
                     if package.get_id() == 9 and time < logistics.today().replace(hour=10, minute=20):
                         package = copy.deepcopy(package)

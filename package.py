@@ -14,7 +14,6 @@ class Package:
         self.weight = weight
         self.delivered = False
         self.delivery_time = None
-        self.late = "Not Late"
         self.truck = None
 
     # O(1)
@@ -34,7 +33,7 @@ class Package:
     # O(1)
     def status_str(self, time):
         deadline_str = self.deadline.strftime('%I:%M %p')
-        if deadline_str == '11:59 PM':
+        if deadline_str == '05:00 PM':
             deadline_str = 'EOD'
         delivery_time_str = self.delivery_time.strftime('%I:%M %p')
         if self.get_status(time) == "at the hub":
@@ -54,8 +53,6 @@ class Package:
     def set_delivered(self, delivered, delivery_time):
         self.delivered = delivered
         self.delivery_time = delivery_time
-        if self.delivery_time > self.deadline:
-            self.late = "LATE"
 
     # O(1)
     def get_delivery_time(self):
