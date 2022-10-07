@@ -42,7 +42,7 @@ empty_inputs = 0
 
 while not flags['exit']:
     print("\n\tSelect an option:")
-    print("\t" + f"{'m [(a)|1-3]:':>15}\t\t{'Print delivery metrics (all or truck 1-3)'}")
+    print("\t" + f"{'m [1-3]:':>15}\t\t{'Print delivery metrics (all, or optional: truck 1-3)'}")
     print("\t" + f"{'p:':>15}\t\t{'Lookup packages at specific time'}")
     print("\t" + f"{'exit:':>15}\t\t{'Exit the WGUPS Portal'}\n")
 
@@ -72,8 +72,6 @@ while not flags['exit']:
         elif len(user) == 2:
             print("\n\tInvalid input! Please try again...")
             continue
-        elif user[2] == 'a':
-            logistics.print_all_metrics()
         elif user[2] == '1':
             logistics.print_metrics(1)
         elif user[2] == '2':
