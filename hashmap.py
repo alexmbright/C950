@@ -1,59 +1,58 @@
 class HashMap:
 
-    def __init__(self):
-        self.map = [None] * 71
+    # Time: O(1) - Space: O(n)
+    def __init__(self, size):
+        self.size = size
+        self.map = [None] * self.size
         self.length = 0
 
+    # Time: O(n) - Space: O(1)
     def _hash(self, key):
         index_hash = 0
         for char in str(key):
             index_hash += ord(char)
-        return index_hash % 71
+        return index_hash % self.size
 
+    # Time: O(n) - Space: O(1)
     def put(self, key, value):
-        index_hash = self._hash(key)
-        key_val = [key, value]
+        index = self._hash(key)
+        new_pair = [key, value]
 
-        if self.map[index_hash] is None:
-            self.map[index_hash] = list([key_val])
+        if self.map[index] is None:
+            self.map[index] = [new_pair]
             self.length += 1
             return True
-        for pair in self.map[index_hash]:
+        for pair in self.map[index]:
             if pair[0] == key:
                 pair[1] = value
                 return True
-        self.map[index_hash].append(key_val)
+        self.map[index].append(new_pair)
         self.length += 1
         return True
 
+    # Time: O(n) - Space: O(1)
     def get(self, key):
-        index_hash = self._hash(key)
-        if self.map[index_hash] is not None:
-            for pair in self.map[index_hash]:
+        index = self._hash(key)
+        if self.map[index] is not None:
+            for pair in self.map[index]:
                 if pair[0] == key:
                     return pair[1]
         return None
 
+    # Time: O(n) - Space: O(1)
     def remove(self, key):
-        index_hash = self._hash(key)
-        if self.map[index_hash] is None:
+        index = self._hash(key)
+        if self.map[index] is None:
             return False
-        for i in range(0, len(self.map[index_hash])):
-            if self.map[index_hash][i][0] == key:
-                del self.map[index_hash][i]
-                if not self.map[index_hash]:
-                    self.map[index_hash] = None
+        for i in range(len(self.map[index])):
+            if self.map[index][i][0] == key:
+                del self.map[index][i]
+                if not self.map[index]:
+                    self.map[index] = None
                 self.length -= 1
                 return True
         return False
 
+    # Time: O(1) - Space: O(1)
     def __len__(self):
         return self.length
-
-    def __str__(self):
-        pairs = ""
-        for item in self.map:
-            if item is not None:
-                for pair in item:
-                    pairs += '\t' + str(pair) + '\n'
-        return pairs

@@ -1,79 +1,88 @@
-# Alex Bright 001130844
-import copy
-
+# Alexander "Alex" Bright - ID: 001130844
 import logistics
 from truck import Truck
 from datetime import datetime
 
-logistics.scan_packages()
-logistics.scan_locations()
-logistics.scan_distances()
-
-logistics.put_truck(Truck(1))
-logistics.put_truck(Truck(2))
-logistics.put_truck(Truck(3))
-
-trucks = logistics.get_all_trucks()
-
-trucks[1].load_packages([1, 7, 13, 14, 15, 16, 19, 20, 27, 29, 30, 34, 35, 37, 40])
-trucks[2].load_packages([3, 6, 18, 25, 26, 28, 31, 32, 36, 38, 39])
-trucks[3].load_packages([2, 4, 5, 8, 9, 10, 11, 12, 17, 21, 22, 23, 24, 33])
-
-trucks[1].set_departure_time(logistics.today().replace(hour=8))
-trucks[2].set_departure_time(logistics.today().replace(hour=9, minute=5))
-trucks[3].set_departure_time(logistics.today().replace(hour=12))
-
-trucks[1].set_metrics(logistics.deliver_packages(trucks[1]))
-trucks[2].set_metrics(logistics.deliver_packages(trucks[2]))
-trucks[3].set_metrics(logistics.deliver_packages(trucks[3]))
-
+# Greet the user with option to run or cancel the delivery simulation
 print("\n\tWelcome to the WGUPS Portal!")
 print("\n\tEnter any key to simulate today's deliveries...")
 print("\tTo exit the program, type 'exit'\n")
 
 user = input("> ").lower().strip()
+
+# If user chooses to exit, say goodbye and exit the program
 if user == 'exit':
+    print("\n\tThanks for using the WGUPS Portal! Goodbye...")
     exit()
 
+"""
+Call the necessary functions to read and store all data
+corresponding to packages, locations, and distances from
+their respective CSV files.
+"""
+logistics.scan_packages()
+logistics.scan_locations()
+logistics.scan_distances()
+
+# Create and store necessary Truck objects
+logistics.put_truck(Truck(1))
+logistics.put_truck(Truck(2))
+logistics.put_truck(Truck(3))
+
+# Create variable pointing to get_all_trucks() function for ease of use
+trucks = logistics.get_all_trucks()
+
+# Manually load packages by hand, making note of all constraints
+trucks[1].load_packages([1, 7, 13, 14, 15, 16, 19, 20, 27, 29, 30, 34, 35, 37, 40])
+trucks[2].load_packages([3, 6, 18, 25, 26, 28, 31, 32, 36, 38, 39])
+trucks[3].load_packages([2, 4, 5, 8, 9, 10, 11, 12, 17, 21, 22, 23, 24, 33])
+
+# Set appropriate departure times for each truck
+trucks[1].set_departure_time(logistics.today.replace(hour=8))
+trucks[2].set_departure_time(logistics.today.replace(hour=9, minute=5))
+trucks[3].set_departure_time(logistics.today.replace(hour=10, minute=20))
+
+# Run delivery algorithm for each truck
+logistics.deliver_packages(trucks[1])
+logistics.deliver_packages(trucks[2])
+logistics.deliver_packages(trucks[3])
+
+# Create one-time deepcopy of package 9 with old address for use in lookups
+logistics.set_old_package_9()
+
+# Print out all truck delivery metrics
 logistics.print_all_metrics()
 
+# Create 'flags' dictionary to use in CLI for input validation and back requests
 flags = {'exit': False}
-empty_inputs = 0
 
 while not flags['exit']:
     print("\n\tSelect an option:")
-    print("\t" + f"{'m [1-3]:':>15}\t\t{'Print delivery metrics (all, or optional: truck 1-3)'}")
-    print("\t" + f"{'p:':>15}\t\t{'Lookup packages at specific time'}")
-    print("\t" + f"{'exit:':>15}\t\t{'Exit the WGUPS Portal'}\n")
+    print("\t\t" + f"{'m [1-3]:':<10}\t\t{'Print delivery metrics (all, or optional: truck 1-3)'}")
+    print("\t\t" + f"{'p:':<10}\t\t{'Lookup packages at specific time'}")
+    print("\t\t" + f"{'exit:':<10}\t\t{'Exit the WGUPS Portal'}\n")
 
     user = input("> ").lower().strip()
     if user == 'exit':
-        print("\n\tThanks for using the WGUPS Portal! Bye...")
+        print("\n\tThanks for using the WGUPS Portal! Goodbye...")
         flags['exit'] = True
         continue
     # empty input validation
     if len(user) == 0:
         print("\n\tPlease enter an input...")
-        empty_inputs += 1
-        if empty_inputs == 2:
-            print("\tProgram will exit after 1 more empty entry...")
-        elif empty_inputs == 3:
-            print("\tToo many empty entries! Exiting program...")
-            flags['exit'] = True
         continue
     empty_inputs = 0
     # metric input validation and response
-    if user[0] == 'm':
-        if len(user) > 3 or len(user) == 2:
-            print("\n\tInvalid input! Please try again...")
-            continue
-        if len(user) == 1:
+    user_spl = user.split(maxsplit=1)
+    if user_spl[0] == 'm':
+        if len(user_spl) == 1:
             logistics.print_all_metrics()
             continue
-        if user[2] != '1' and user[2] != '2' and user[2] != '3':
-            print("\n\tEnter a number 1-3! Please try again...")
-            continue
-        logistics.print_metrics(int(user[2]))
+        if len(user_spl) == 2:
+            if user_spl[1] != '1' and user_spl[1] != '2' and user_spl[1] != '3':
+                print("\n\tEnter a number 1-3! Please try again...")
+                continue
+            logistics.print_metrics(int(user_spl[1]))
     # input validation
     elif len(user) > 1:
         print("\n\tInvalid input! Please try again...")
@@ -82,7 +91,7 @@ while not flags['exit']:
     elif user == 'p':
         flags['valid'] = False
         flags['back'] = False
-        time = logistics.today()
+        time = logistics.today
         # time validation and check for back request
         while not flags['valid'] and not flags['back']:
             print("\n\tEnter the time you want to use for looking up packages.")
@@ -173,9 +182,8 @@ while not flags['exit']:
                 print("\n\tPackages found in system:")
                 for i in range(1, len(packages) + 1):
                     package = logistics.get_package(i)
-                    if package.get_id() == 9 and time < logistics.today().replace(hour=10, minute=20):
-                        package = copy.deepcopy(package)
-                        package.update_address('300 State St', 'Salt Lake City', 'UT', '84103')
+                    if package.get_id() == 9 and time < logistics.today.replace(hour=10, minute=20):
+                        package = logistics.get_old_package_9()
                     print("\t\t" + package.status_str(time))
                 print("\n\tEnter any key to return...\n")
                 input("> ")
@@ -209,9 +217,8 @@ while not flags['exit']:
                     flags['back'] = False
                     continue
                 print(f"\n\tPackages found with ID {package.get_id()}:")
-                if package.get_id() == 9 and time < logistics.today().replace(hour=10, minute=20):
-                    package = copy.deepcopy(package)
-                    package.update_address('300 State St', 'Salt Lake City', 'UT', '84103')
+                if package.get_id() == 9 and time < logistics.today.replace(hour=10, minute=20):
+                    package = logistics.get_old_package_9()
                 print("\t\t" + package.status_str(time))
                 print("\n\tEnter any key to return...\n")
                 input("> ")
@@ -248,9 +255,8 @@ while not flags['exit']:
                     continue
                 print(f"\n\tPackages found with status '{status}':")
                 for package in packages:
-                    if package.get_id() == 9 and time < logistics.today().replace(hour=10, minute=20):
-                        package = copy.deepcopy(package)
-                        package.update_address('300 State St', 'Salt Lake City', 'UT', '84103')
+                    if package.get_id() == 9 and time < logistics.today.replace(hour=10, minute=20):
+                        package = logistics.get_old_package_9()
                     print("\t\t" + package.status_str(time))
                 print("\n\tEnter any key to return...\n")
                 input("> ")
@@ -305,9 +311,8 @@ while not flags['exit']:
                     continue
                 print(f"\n\tPackages found with city '{user.title()}':")
                 for package in packages:
-                    if package.get_id() == 9 and time < logistics.today().replace(hour=10, minute=20):
-                        package = copy.deepcopy(package)
-                        package.update_address('300 State St', 'Salt Lake City', 'UT', '84103')
+                    if package.get_id() == 9 and time < logistics.today.replace(hour=10, minute=20):
+                        package = logistics.get_old_package_9()
                     print("\t\t" + package.status_str(time))
                 print("\n\tEnter any key to return...\n")
                 input("> ")
@@ -368,9 +373,8 @@ while not flags['exit']:
                     continue
                 print(f"\n\tPackages found with weight '{user}':")
                 for package in packages:
-                    if package.get_id() == 9 and time < logistics.today().replace(hour=10, minute=20):
-                        package = copy.deepcopy(package)
-                        package.update_address('300 State St', 'Salt Lake City', 'UT', '84103')
+                    if package.get_id() == 9 and time < logistics.today.replace(hour=10, minute=20):
+                        package = logistics.get_old_package_9()
                     print("\t\t" + package.status_str(time))
                 print("\n\tEnter any key to return...\n")
                 input("> ")
@@ -378,9 +382,9 @@ while not flags['exit']:
                 flags['valid'] = False
                 flags['back'] = False
                 packages = []
-                deadlines = {1: logistics.today().replace(hour=9, minute=0),
-                             2: logistics.today().replace(hour=10, minute=30),
-                             3: logistics.today().replace(hour=17, minute=0)}
+                deadlines = {1: logistics.today.replace(hour=9, minute=0),
+                             2: logistics.today.replace(hour=10, minute=30),
+                             3: logistics.today.replace(hour=17, minute=0)}
                 while not flags['valid'] and not flags['back']:
                     print("\n\tSelect a deadline:")
                     print(f"\t{'1:':>10}\t\t9:00 AM")
@@ -409,9 +413,8 @@ while not flags['exit']:
                 deadline_str = deadline.strftime('%I:%M %p')
                 print(f"\n\tPackages found with deadline '{deadline_str if deadline_str != '05:00 PM' else 'end of day'}':")
                 for package in packages:
-                    if package.get_id() == 9 and time < logistics.today().replace(hour=10, minute=20):
-                        package = copy.deepcopy(package)
-                        package.update_address('300 State St', 'Salt Lake City', 'UT', '84103')
+                    if package.get_id() == 9 and time < logistics.today.replace(hour=10, minute=20):
+                        package = logistics.get_old_package_9()
                     print("\t\t" + package.status_str(time))
                 print("\n\tEnter any key to return...\n")
                 input("> ")
