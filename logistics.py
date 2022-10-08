@@ -35,20 +35,20 @@ def deliver_packages(truck):
 
     # Create list of all package locations for use in nearest neighbor algorithm
     package_locations = {}
-    locations = []
+    locations = set()
     for pkg in packages:  # Time: O(n) - Space: O(n)
         pkg_loc = int(get_location(get_package(pkg).address)['id'])
         if pkg_loc not in package_locations:
             package_locations[pkg_loc] = []
         package_locations[pkg_loc].append(pkg)
-        locations.append(pkg_loc)
+        locations.add(pkg_loc)
 
     # Create appropriate variables and data structures for use in algorithm
     current_location = 0
-    visited_locations = [0]
+    visited_locations = set()
     current_time = start_time
     total_miles = 0
-    delivered = []
+    delivered = set()
 
     """
     Nearest Neighbor Algorithm
@@ -56,7 +56,7 @@ def deliver_packages(truck):
     Time: O(n^2)
     Space: O(n^2)
     """
-    while len(delivered) < len(packages):  # Time: O(n) - Space: O(n)
+    while len(visited_locations) < len(locations):  # Time: O(n) - Space: O(n)
 
         # If current delivery time is on or after 10:20 am, update package 9's address.
         # Makes use of the boolean variable 'address_updated_9' as noted earlier.
@@ -85,12 +85,12 @@ def deliver_packages(truck):
         # Deliver and update all packages found at current delivery location
         for pkg in package_locations.get(nearest['id']):  # Time: O(n) - Space: O(n)
             nearest_package = get_package(pkg)
-            delivered.append(nearest_package.get_id())
+            delivered.add(nearest_package.get_id())
             nearest_package.set_delivered(True, current_time.replace(second=0))
 
         # Mark current location as visited
         current_location = nearest['id']
-        visited_locations.append(current_location)
+        visited_locations.add(current_location)
 
     # Return truck to hub after all deliveries are complete
     return_miles = get_distance(current_location, 0)
