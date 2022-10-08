@@ -56,13 +56,21 @@ logistics.print_all_metrics()
 # Create 'flags' dictionary to use in CLI for input validation and back requests
 flags = {'exit': False}
 
+# Time: O(n^5)
+# Space: O(n^3)
+# Begin command line interface
 while not flags['exit']:
+
+    # Greet the user with available options
     print("\n\tSelect an option:")
-    print("\t\t" + f"{'m [1-3]:':<10}\t\t{'Print delivery metrics (all, or optional: truck 1-3)'}")
-    print("\t\t" + f"{'p:':<10}\t\t{'Lookup packages at specific time'}")
-    print("\t\t" + f"{'exit:':<10}\t\t{'Exit the WGUPS Portal'}\n")
+    print("\t\t" + f"{'m [1-3]:':<10}\t\tPrint delivery metrics (all, or optional: truck 1-3)")
+    print("\t\t" + f"{'a:':<10}\t\tView all package data for the end of the day")
+    print("\t\t" + f"{'p:':<10}\t\tLookup packages at specific time")
+    print("\t\t" + f"{'exit:':<10}\t\tExit the WGUPS Portal\n")
 
     user = input("> ").lower().strip()
+
+    # Exit the program if user requests
     if user == 'exit':
         print("\n\tThanks for using the WGUPS Portal! Goodbye...")
         flags['exit'] = True
@@ -86,6 +94,19 @@ while not flags['exit']:
     # input validation
     elif len(user) > 1:
         print("\n\tInvalid input! Please try again...")
+        continue
+    # view all packages for end of day
+    elif user == 'a':
+        packages = logistics.get_all_packages()
+        if len(packages) == 0:
+            print("\n\tNo packages found!\n")
+            continue
+        print("\n\tPackages found in system:")
+        for i in range(1, len(packages) + 1):
+            package = logistics.get_package(i)
+            print("\t\t" + str(package))
+        print("\n\tEnter any key to return...\n")
+        input("> ")
         continue
     # package input response (ask for time)
     elif user == 'p':
@@ -260,6 +281,7 @@ while not flags['exit']:
                     print("\t\t" + package.status_str(time))
                 print("\n\tEnter any key to return...\n")
                 input("> ")
+            # run package address lookup
             elif user == 'a':
                 flags['valid'] = False
                 flags['back'] = False
@@ -287,6 +309,7 @@ while not flags['exit']:
                     print("\t\t" + package.status_str(time))
                 print("\n\tEnter any key to return...\n")
                 input("> ")
+            # run package city lookup
             elif user == 'c':
                 flags['valid'] = False
                 flags['back'] = False
@@ -316,6 +339,7 @@ while not flags['exit']:
                     print("\t\t" + package.status_str(time))
                 print("\n\tEnter any key to return...\n")
                 input("> ")
+            # run package zip code lookup
             elif user == 'z':
                 flags['valid'] = False
                 flags['back'] = False
@@ -346,6 +370,7 @@ while not flags['exit']:
                     print("\t\t" + package.status_str(time))
                 print("\n\tEnter any key to return...\n")
                 input("> ")
+            # run package weight lookup
             elif user == 'w':
                 flags['valid'] = False
                 flags['back'] = False
@@ -378,6 +403,7 @@ while not flags['exit']:
                     print("\t\t" + package.status_str(time))
                 print("\n\tEnter any key to return...\n")
                 input("> ")
+            # run package deadline lookup
             elif user == 'd':
                 flags['valid'] = False
                 flags['back'] = False
@@ -424,3 +450,4 @@ while not flags['exit']:
     else:
         print("\n\tInvalid input! Please try again...")
         continue
+

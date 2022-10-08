@@ -11,7 +11,7 @@ _address_updated_9 = False
 # This allows the old address to be used in lookups performed before 10:20 am.
 _package_9_old = None
 
-# Create appropriate data structures for the program
+# Create appropriate data structures for use in the program
 _packages = HashMap(71)
 _locations = []
 _distances = []
@@ -24,7 +24,7 @@ all relevant datetime objects throughout the program
 today = datetime.combine(datetime.today(), time(0))
 
 
-# Space-time complexity analyzed inside function
+# Time: O(n^2) - Space: O(n^2)
 def deliver_packages(truck):
     start_time = truck.get_departure_time()
     packages = truck.get_packages()
@@ -36,7 +36,7 @@ def deliver_packages(truck):
     # Create list of all package locations for use in nearest neighbor algorithm
     package_locations = {}
     locations = []
-    for pkg in packages:
+    for pkg in packages:  # Time: O(n) - Space: O(n)
         pkg_loc = int(get_location(get_package(pkg).address)['id'])
         if pkg_loc not in package_locations:
             package_locations[pkg_loc] = []
@@ -53,10 +53,10 @@ def deliver_packages(truck):
     """
     Nearest Neighbor Algorithm
     
-    Time: 
-    Space: 
+    Time: O(n^2)
+    Space: O(n^2)
     """
-    while len(delivered) < len(packages):
+    while len(delivered) < len(packages):  # Time: O(n) - Space: O(n)
 
         # If current delivery time is on or after 10:20 am, update package 9's address.
         # Makes use of the boolean variable 'address_updated_9' as noted earlier.
@@ -65,12 +65,12 @@ def deliver_packages(truck):
             get_package(9).update_address('410 S State St', 'Salt Lake City', 'UT', '84111')
             _address_updated_9 = True
 
-        # Generate dictionary list of all unvisited neighbors
-        neighbors = get_available(current_location, locations, visited_locations)
+        # Generate dictionary list of all unvisited neighbors (possible locations for next delivery)
+        neighbors = get_available(current_location, locations, visited_locations)  # Time: O(n)
 
         # Find nearest neighbor (location with the shortest distance)
         nearest = {}
-        for neighbor in neighbors:
+        for neighbor in neighbors:  # Time: O(n)
             if not nearest:
                 nearest = {'id': neighbor['id'], 'distance': neighbor['distance']}
                 continue
@@ -83,7 +83,7 @@ def deliver_packages(truck):
         total_miles += nearest['distance']
 
         # Deliver and update all packages found at current delivery location
-        for pkg in package_locations.get(nearest['id']):
+        for pkg in package_locations.get(nearest['id']):  # Time: O(n) - Space: O(n)
             nearest_package = get_package(pkg)
             delivered.append(nearest_package.get_id())
             nearest_package.set_delivered(True, current_time.replace(second=0))
@@ -114,19 +114,23 @@ def deliver_packages(truck):
 """
 
 
-# Time: O(n) - Space: O(n)
+# Time: O(n^2) - Space: O(n)
+# Scan and store all package data found in 'packages.csv' file
 def scan_packages():
     with open('data/packages.csv') as file:
         reader = csv.DictReader(file)
 
         for line in reader:
+
+            # Instantiate proper datetime object for deadline
             deadline = line['deadline']
             if deadline == 'EOD':
                 deadline = "5:00 PM"
             deadline_time = datetime.combine(today, datetime.strptime(deadline, '%I:%M %p').time())
+
             package = Package(int(line['id']), line['address'], line['city'], line['state'], line['zip_code'],
                               deadline_time, int(line['weight']))
-            _packages.put(package.package_id, package)
+            _packages.put(package.package_id, package)  # O(n)
 
 
 # Time: O(1) - Space: O(1)
@@ -134,17 +138,18 @@ def get_all_packages():
     return _packages
 
 
-# Time: O(n) -- HashMap get() function = O(n)
+# Time: O(n)
 # Space: O(1)
 def get_package(package_id):
-    return _packages.get(package_id)
+    return _packages.get(package_id)  # O(n)
 
 
-# Time: O(n)
+# Time: O(n^2) - Space: O(n)
 def get_packages_by_address(address, time_req):
     result = []
     for i in range(1, len(_packages) + 1):
-        package = _packages.get(i)
+        package = _packages.get(i)  # O(n)
+        # If time used in the lookup is before 10:20am, use old address for package 9
         if package.get_id() == 9 and time_req < today.replace(hour=10, minute=20):
             package = _package_9_old
         if package.address.lower() == address.lower():
@@ -152,7 +157,7 @@ def get_packages_by_address(address, time_req):
     return result
 
 
-# O(n)
+# Time: O(n^2) - Space: O(n)
 def get_packages_by_deadline(deadline):
     result = []
     for i in range(1, len(_packages) + 1):
@@ -162,7 +167,7 @@ def get_packages_by_deadline(deadline):
     return result
 
 
-# O(n)
+# Time: O(n^2) - Space: O(n)
 def get_packages_by_city(city):
     result = []
     for i in range(1, len(_packages) + 1):
@@ -172,11 +177,12 @@ def get_packages_by_city(city):
     return result
 
 
-# O(n)
+# Time: O(n^2) - Space: O(n)
 def get_packages_by_zip(zip_code, time_req):
     result = []
     for i in range(1, len(_packages) + 1):
         package = _packages.get(i)
+        # If time used in the lookup is before 10:20am, use old address for package 9
         if package.get_id() == 9 and time_req < today.replace(hour=10, minute=20):
             package = _package_9_old
         if package.zip_code == zip_code:
@@ -184,7 +190,7 @@ def get_packages_by_zip(zip_code, time_req):
     return result
 
 
-# O(n)
+# Time: O(n^2) - Space: O(n)
 def get_packages_by_weight(weight):
     result = []
     for i in range(1, len(_packages) + 1):
@@ -194,7 +200,7 @@ def get_packages_by_weight(weight):
     return result
 
 
-# O(n)
+# Time: O(n^2) - Space: O(n)
 def get_packages_by_status(status, time_req):
     result = []
     for i in range(1, len(_packages) + 1):
@@ -204,12 +210,16 @@ def get_packages_by_status(status, time_req):
     return result
 
 
+# Time: O(n) - Space: O(1)
+# Set deep copy of package 9 with initial known address,
+# for use in lookup functions when time is before 10:20 am
 def set_old_package_9():
     global _package_9_old
-    _package_9_old = copy.deepcopy(get_package(9))
+    _package_9_old = copy.deepcopy(get_package(9))  # O(n)
     _package_9_old.update_address('300 State St', 'Salt Lake City', 'UT', '84103')
 
 
+# Time: O(1) - Space: O(1)
 def get_old_package_9():
     return _package_9_old
 
@@ -221,34 +231,35 @@ def get_old_package_9():
 """
 
 
-# O(1)
+# Time: O(1) - Space: O(1)
 def put_truck(truck):
     _trucks[truck.id] = truck
 
 
-# O(1)
+# Time: O(1) - Space: O(1)
 def get_truck(truck_id):
     return _trucks[truck_id]
 
 
-# O(1)
+# Time: O(1) - Space: O(1)
 def get_all_trucks():
     return _trucks
 
 
-# O(1)
+# Time: O(1) - Space: O(1)
+# Prints out per-truck delivery metrics
 def print_metrics(truck_id):
     metrics = get_truck(truck_id).get_metrics()
     print("\n\tTruck", truck_id, "delivery metrics:")
     print("\t\t" + f"{'Departure time: ':<25}" + f"{get_truck(truck_id).get_departure_time().strftime('%I:%M %p'):<20}")
     print("\t\t" + f"{'Packages delivered: ':<25}" + f"{len(metrics['delivered']):<20}")
-    # travel = str(metrics['miles']) + ' miles over ' + metrics['time_spent']
-    print("\t\t" + f"{'Total miles: ':<25}" + f"{metrics['miles']:<20}")
-    print("\t\t" + f"{'Total time spent: ':<25}" + f"{metrics['time_spent']:<20}")
+    print("\t\t" + f"{'Miles traveled: ':<25}" + f"{metrics['miles']:<20}")
+    print("\t\t" + f"{'Time spent: ':<25}" + f"{metrics['time_spent']:<20}")
     print("\t\t" + f"{'Return to hub time: ':<25}" + f"{metrics['end_time'].strftime('%I:%M %p'):<20}")
 
 
-# O(1)
+# Time: O(1) - Space: O(1)
+# Prints out all delivery metrics
 def print_all_metrics():
     print_metrics(1)
     print_metrics(2)
@@ -259,7 +270,7 @@ def print_all_metrics():
     total_td = str(get_truck(3).get_metrics()['end_time'] - get_truck(1).get_departure_time()).split(':')
     total_time = f"{int(total_td[0]):01}h {int(total_td[1]):02}m"
 
-    print("\n\t" + f"{'Total miles travelled: ':<29}" + f"{total_miles:<20}")
+    print("\n\t" + f"{'Total miles traveled: ':<29}" + f"{total_miles:<20}")
     print("\t" + f"{'Total delivery time: ':<29}" + f"{total_time:<20}")
 
 
@@ -270,7 +281,8 @@ def print_all_metrics():
 """
 
 
-# O(n)
+# Time: O(n) - Space: O(1)
+# Scan and store all location data found in 'locations.csv' file
 def scan_locations():
     with open('data/locations.csv') as file:
         reader = csv.DictReader(file)
@@ -279,12 +291,12 @@ def scan_locations():
             _locations.append({'id': line['id'], 'name': line['name'], 'address': line['address']})
 
 
-# O(1)
+# Time: O(1) - Space: O(1)
 def get_all_locations():
     return _locations
 
 
-# O(n)
+# Time: O(n) - Space: O(1)
 def get_location(address):
     for location in _locations:
         if location['address'].lower() == address.lower():
@@ -298,40 +310,27 @@ def get_location(address):
 """
 
 
-# O(n^2)
+# Time: O(n^2) - Space: O(n)
+# Scan and store all distance data found in 'distances.csv' file
 def scan_distances():
     with open('data/distances.csv') as file:
         reader = csv.reader(file)
 
-        i = 0
         for line in reader:
             _curr_distances = []
             for j in range(len(line)):
                 if line[j]:
                     _curr_distances.append({'id': j, 'distance': float(line[j])})
             _distances.append(_curr_distances)
-            i += 1
 
 
-# O(1)
+# Time: O(1) - Space: O(1)
 def get_all_distances():
     return _distances
 
 
-# O(n)
-def get_all_available(a, visited):
-    if visited is None:
-        visited = []
-    _available = []
-    for i in range(len(_locations)):
-        if i >= len(_distances):
-            continue
-        if i != a and i not in visited:
-            _available.append({'id': i, 'distance': get_distance(i, a)})
-    return _available
-
-
-# O(n)
+# Time: O(n) - Space: O(1)
+# From a list of locations, return all unvisited neighbors from a given point
 def get_available(a, locations, visited):
     if visited is None:
         visited = []
@@ -344,7 +343,8 @@ def get_available(a, locations, visited):
     return _available
 
 
-# O(1)
+# Time: O(1) - Space: O(1)
+# Return the distance (in miles) between two points, A and B
 def get_distance(a, b):
     if a > b:
         return _distances[a][b]['distance']

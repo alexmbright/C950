@@ -7,6 +7,9 @@ class HashMap:
         self.length = 0
 
     # Time: O(n) - Space: O(1)
+    # Returns the hash value (index) of the desired bucket.
+    # Hash value = Remainder of sum of Unicode code values of
+    # characters in provided key divided by map size
     def _hash(self, key):
         index_hash = 0
         for char in str(key):
@@ -14,45 +17,66 @@ class HashMap:
         return index_hash % self.size
 
     # Time: O(n) - Space: O(1)
+    # Puts new key-value pair into the HashMap, or updates value if key exists
     def put(self, key, value):
+
+        # Determine bucket index and instantiate new key-value pair
         index = self._hash(key)
         new_pair = [key, value]
 
+        # If bucket does not exist, add key-value pair
         if self.map[index] is None:
             self.map[index] = [new_pair]
-            self.length += 1
-            return True
+            self.length += 1 # Keep track of HashMap length!
+            return
+
+        # If key already exists in bucket, update value
         for pair in self.map[index]:
             if pair[0] == key:
                 pair[1] = value
-                return True
+                return
+
+        # If bucket exists and key is unique, add new key-value pair
         self.map[index].append(new_pair)
         self.length += 1
-        return True
+        return
 
     # Time: O(n) - Space: O(1)
+    # Searches for and returns value for provided key
     def get(self, key):
         index = self._hash(key)
         if self.map[index] is not None:
             for pair in self.map[index]:
                 if pair[0] == key:
                     return pair[1]
+
+        # If key not found in the HashMap, return None
         return None
 
     # Time: O(n) - Space: O(1)
+    # Searches for and removes provided key (and value) from HashMap.
+    # Returns True if key-value pair removed, otherwise False
     def remove(self, key):
         index = self._hash(key)
+
+        # If bucket does not exist, return False
         if self.map[index] is None:
             return False
+
+        # If key found in bucket, remove and return True
         for i in range(len(self.map[index])):
             if self.map[index][i][0] == key:
                 del self.map[index][i]
+                # If necessary, replace empty bucket with None
                 if not self.map[index]:
                     self.map[index] = None
-                self.length -= 1
+                self.length -= 1 # Keep track of HashMap length!
                 return True
+
+        # If key not found, remove and return False
         return False
 
     # Time: O(1) - Space: O(1)
+    # This is why we kept track of length. Especially helpful in loops.
     def __len__(self):
         return self.length
