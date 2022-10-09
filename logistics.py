@@ -69,11 +69,8 @@ def deliver_packages(truck):
         neighbors = get_available(current_location, locations, visited_locations)  # Time: O(n)
 
         # Find nearest neighbor (location with the shortest distance)
-        nearest = {}
+        nearest = {'id': neighbors[0]['id'], 'distance': neighbors[0]['distance']}
         for neighbor in neighbors:  # Time: O(n)
-            if not nearest:
-                nearest = {'id': neighbor['id'], 'distance': neighbor['distance']}
-                continue
             if neighbor['distance'] < nearest['distance']:
                 nearest = {'id': neighbor['id'], 'distance': neighbor['distance']}
 
@@ -336,8 +333,6 @@ def get_available(a, locations, visited):
         visited = []
     _available = []
     for i in range(len(_locations)):
-        if i >= len(_distances):
-            continue
         if i in locations and i != a and i not in visited:
             _available.append({'id': i, 'distance': get_distance(i, a)})
     return _available
