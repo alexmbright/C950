@@ -12,7 +12,7 @@ _address_updated_9 = False
 _package_9_old = None
 
 # Create appropriate data structures for use in the program
-_packages = HashMap(71)
+_packages = HashMap()
 _locations = []
 _distances = []
 _trucks = {}
@@ -32,6 +32,12 @@ def deliver_packages(truck):
     # Cancel package delivery if package list is empty
     if not packages:
         return
+
+    # If truck contains package 9, ensure that the address is correct before running delivery.
+    global _address_updated_9
+    if not _address_updated_9 and start_time >= today.replace(hour=10, minute=20):
+        get_package(9).update_address('410 S State St', 'Salt Lake City', 'UT', '84111')
+        _address_updated_9 = True
 
     # Create list of all package locations for use in nearest neighbor algorithm
     package_locations = {}
@@ -59,14 +65,17 @@ def deliver_packages(truck):
     while len(visited_locations) < len(locations):  # Time: O(n) - Space: O(n)
 
         # If current delivery time is on or after 10:20 am, update package 9's address.
-        # Makes use of the boolean variable 'address_updated_9' as noted earlier.
-        global _address_updated_9
         if not _address_updated_9 and current_time >= today.replace(hour=10, minute=20):
             get_package(9).update_address('410 S State St', 'Salt Lake City', 'UT', '84111')
             _address_updated_9 = True
 
+        neighbors = []
+        for loc in locations:
+            if loc not in visited_locations:
+                neighbors.append({'id': loc, 'distance': get_distance(current_location, loc)})
+
         # Generate dictionary list of all unvisited neighbors (possible locations for next delivery)
-        neighbors = get_available(current_location, locations, visited_locations)  # Time: O(n)
+        # neighbors = get_available(current_location, locations, visited_locations)  # Time: O(n)
 
         # Find nearest neighbor (location with the shortest distance)
         nearest = {'id': neighbors[0]['id'], 'distance': neighbors[0]['distance']}
@@ -324,18 +333,6 @@ def scan_distances():
 # Time: O(1) - Space: O(1)
 def get_all_distances():
     return _distances
-
-
-# Time: O(n) - Space: O(1)
-# From a list of locations, return all unvisited neighbors from a given point
-def get_available(a, locations, visited):
-    if visited is None:
-        visited = []
-    _available = []
-    for i in range(len(_locations)):
-        if i in locations and i != a and i not in visited:
-            _available.append({'id': i, 'distance': get_distance(i, a)})
-    return _available
 
 
 # Time: O(1) - Space: O(1)

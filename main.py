@@ -56,8 +56,6 @@ logistics.print_all_metrics()
 # Create 'flags' dictionary to use in CLI for input validation and back requests
 flags = {'exit': False}
 
-# Time: O(n^5)
-# Space: O(n^3)
 # Begin command line interface
 while not flags['exit']:
 
@@ -175,7 +173,8 @@ while not flags['exit']:
         flags['back'] = False
         # run package lookup
         while not flags['back']:
-            print(f"\n\tTime being used in lookup: {time.strftime('%I:%M %p')}")
+            time_str = time.strftime('%I:%M %p')
+            print(f"\n\tTime being used in lookup: {time_str}")
             print("\tSelect a filter:")
             print("\t" + f"{'all:':>10}\t\tView all packages")
             print("\t" + f"{'i:':>10}\t\tPackage ID")
@@ -200,7 +199,8 @@ while not flags['exit']:
                 if len(packages) == 0:
                     print("\n\tNo packages found!\n")
                     continue
-                print("\n\tPackages found in system:")
+                print(f"\n\tTime being used in lookup: {time_str}")
+                print("\tPackages found in system:")
                 for i in range(1, len(packages) + 1):
                     package = logistics.get_package(i)
                     if package.get_id() == 9 and time < logistics.today.replace(hour=10, minute=20):
@@ -237,7 +237,8 @@ while not flags['exit']:
                 if flags['back']:
                     flags['back'] = False
                     continue
-                print(f"\n\tPackages found with ID {package.get_id()}:")
+                print(f"\n\tTime being used in lookup: {time_str}")
+                print(f"\tPackages found with ID {package.get_id()}:")
                 if package.get_id() == 9 and time < logistics.today.replace(hour=10, minute=20):
                     package = logistics.get_old_package_9()
                 print("\t\t" + package.status_str(time))
@@ -274,7 +275,8 @@ while not flags['exit']:
                 if flags['back']:
                     flags['back'] = False
                     continue
-                print(f"\n\tPackages found with status '{status}':")
+                print(f"\n\tTime being used in lookup: {time_str}")
+                print(f"\tPackages found with status '{status}':")
                 for package in packages:
                     if package.get_id() == 9 and time < logistics.today.replace(hour=10, minute=20):
                         package = logistics.get_old_package_9()
@@ -304,7 +306,8 @@ while not flags['exit']:
                 if flags['back']:
                     flags['back'] = False
                     continue
-                print(f"\n\tPackages found with address '{user.title()}':")
+                print(f"\n\tTime being used in lookup: {time_str}")
+                print(f"\tPackages found with address '{user.title()}':")
                 for package in packages:
                     print("\t\t" + package.status_str(time))
                 print("\n\tEnter any key to return...\n")
@@ -332,7 +335,8 @@ while not flags['exit']:
                 if flags['back']:
                     flags['back'] = False
                     continue
-                print(f"\n\tPackages found with city '{user.title()}':")
+                print(f"\n\tTime being used in lookup: {time_str}")
+                print(f"\tPackages found with city '{user.title()}':")
                 for package in packages:
                     if package.get_id() == 9 and time < logistics.today.replace(hour=10, minute=20):
                         package = logistics.get_old_package_9()
@@ -365,7 +369,8 @@ while not flags['exit']:
                 if flags['back']:
                     flags['back'] = False
                     continue
-                print(f"\n\tPackages found with zip code '{user}':")
+                print(f"\n\tTime being used in lookup: {time_str}")
+                print(f"\tPackages found with zip code '{user}':")
                 for package in packages:
                     print("\t\t" + package.status_str(time))
                 print("\n\tEnter any key to return...\n")
@@ -396,7 +401,8 @@ while not flags['exit']:
                 if flags['back']:
                     flags['back'] = False
                     continue
-                print(f"\n\tPackages found with weight '{user}':")
+                print(f"\n\tTime being used in lookup: {time_str}")
+                print(f"\tPackages found with weight '{user}':")
                 for package in packages:
                     if package.get_id() == 9 and time < logistics.today.replace(hour=10, minute=20):
                         package = logistics.get_old_package_9()
@@ -436,8 +442,9 @@ while not flags['exit']:
                 if flags['back']:
                     flags['back'] = False
                     continue
+                print(f"\n\tTime being used in lookup: {time_str}")
                 deadline_str = deadline.strftime('%I:%M %p')
-                print(f"\n\tPackages found with deadline '{deadline_str if deadline_str != '05:00 PM' else 'end of day'}':")
+                print(f"\tPackages found with deadline '{deadline_str if deadline_str != '05:00 PM' else 'end of day'}':")
                 for package in packages:
                     if package.get_id() == 9 and time < logistics.today.replace(hour=10, minute=20):
                         package = logistics.get_old_package_9()
@@ -449,5 +456,4 @@ while not flags['exit']:
             continue
     else:
         print("\n\tInvalid input! Please try again...")
-        continue
 

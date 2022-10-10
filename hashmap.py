@@ -1,16 +1,18 @@
 class HashMap:
 
     # Time: O(1) - Space: O(n)
-    def __init__(self, size):
-        self.size = size
+    def __init__(self):
+        self.size = 49157
         self.map = [None] * self.size
         self.length = 0
 
     # Time: O(n) - Space: O(1)
     # Returns the hash value (index) of the desired bucket.
-    # Hash value = Remainder of sum of Unicode code values of
-    # characters in provided key divided by map size
+    # Hash value if key is numeric: key % size
+    # Hash value if key is not numeric: sum of Unicode codes % size
     def _hash(self, key):
+        if str(key).isnumeric():
+            return key % self.size
         index_hash = 0
         for char in str(key):
             index_hash += ord(char)
@@ -77,6 +79,22 @@ class HashMap:
         return False
 
     # Time: O(1) - Space: O(1)
+    # Overrides built-in len function
     # This is why we kept track of length. Especially helpful in loops.
     def __len__(self):
         return self.length
+
+    # Time: O(n) - Space: O(1)
+    # Overrides built-in str function
+    # Used for testing collision count and optimizing hash function
+    def __str__(self):
+        result = ""
+        collisions = 0
+        for bucket in self.map:
+            if bucket is not None:
+                if len(bucket) > 1:
+                    collisions += len(bucket) - 1
+                result += "\n" + str(bucket)
+        result += "\n\nCollision count: " + str(collisions)
+        return result
+
