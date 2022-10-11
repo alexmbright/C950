@@ -40,13 +40,14 @@ class Package:
             deadline_str = 'EOD'
         if self.get_status(time) == "at the hub":
             return f"{self.package_id:02} - \033[01mAT THE HUB\033[0m (due by {deadline_str}) - {self.address}, " \
-                   f"{self.city}, {self.state} {self.zip_code}"
+                   f"{self.city}, {self.state} {self.zip_code} (Weight: {self.weight} kg)"
         if self.get_status(time) == "en route":
             return f"{self.package_id:02} - \033[01m\033[93mEN ROUTE\033[0m\033[93m on TRUCK {self.truck} " \
-                   f"(due by {deadline_str})\033[0m - {self.address}, {self.city}, {self.state} {self.zip_code}"
+                   f"(due by {deadline_str})\033[0m - {self.address}, {self.city}, {self.state} {self.zip_code} " \
+                   f"(Weight: {self.weight} kg)"
         delivery_time_str = self.delivery_time.strftime('%I:%M %p')
-        return f"{self.package_id:02} - \033[01m\033[32mDELIVERED\033[0m\033[32m at {delivery_time_str}\033[0m - " \
-               f"{self.address}, {self.city}, {self.state} {self.zip_code}"
+        return f"{self.package_id:02} - \033[01m\033[32mDELIVERED\033[0m\033[32m at {delivery_time_str} (due by {deadline_str})\033[0m - " \
+               f"{self.address}, {self.city}, {self.state} {self.zip_code} (Weight: {self.weight} kg)"
 
     # Time: O(1) - Space: O(1)
     def get_id(self):
